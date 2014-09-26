@@ -1,6 +1,8 @@
 test-app-builder
 ================
 
+![Demo GIF](https://dl.dropboxusercontent.com/u/18982788/out.gif)
+
 ## Usage
 
 usage: gen.py [-h] [-a APPS] [-m MODELS] [-f MAX_FIELDS] target
