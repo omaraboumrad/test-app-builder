@@ -1,6 +1,6 @@
 import unittest
 
-from gen import (
+from scaffolder.gen import (
     Field,
     Model,
     Module,
@@ -75,48 +75,21 @@ class Bar(models.Model):
         self.assertEqual(expected, m1.as_str())
 
     def test_modulebuilderonemoduleonemodel(self):
-        modules = module_builder(1, 1)
-
-        expected = """from django.db import models
-
-
-class M1(models.Model):
-    f1 = models.CharField(max_length=200)
-    f2 = models.IntegerField()
-    f3 = models.TextField()"""
-
-        self.assertEqual(expected, modules[0].as_str())
+        modules = module_builder(1, 1, 3)
+        self.assertEqual(1, len(modules))
+        self.assertEqual(1, len(modules[0].models))
+        self.assertLessEqual(len(modules[0].models[0].fields), 3)
 
     def test_modulebuildermanymodulesmanymodels(self):
-        modules = module_builder(2, 4)
+        modules = module_builder(2, 4, 6)
 
-        expected_m1 = """from django.db import models
+        self.assertEqual(2, len(modules))
 
+        self.assertEqual(2, len(modules[0].models))
+        self.assertLessEqual(len(modules[0].models[0].fields), 6)
+        self.assertLessEqual(len(modules[0].models[1].fields), 6)
 
-class M1(models.Model):
-    f1 = models.CharField(max_length=200)
-    f2 = models.IntegerField()
-    f3 = models.TextField()
+        self.assertEqual(2, len(modules[1].models))
+        self.assertLessEqual(len(modules[1].models[0].fields), 6)
+        self.assertLessEqual(len(modules[1].models[1].fields), 6)
 
-
-class M2(models.Model):
-    f4 = models.CharField(max_length=200)
-    f5 = models.IntegerField()
-    f6 = models.TextField()"""
-
-        expected_m2 = """from django.db import models
-
-
-class M3(models.Model):
-    f7 = models.CharField(max_length=200)
-    f8 = models.IntegerField()
-    f9 = models.TextField()
-
-
-class M4(models.Model):
-    f10 = models.CharField(max_length=200)
-    f11 = models.IntegerField()
-    f12 = models.TextField()"""
-
-        self.assertEqual(expected_m1, modules[0].as_str())
-        self.assertEqual(expected_m2, modules[1].as_str())

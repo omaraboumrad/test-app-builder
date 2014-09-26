@@ -1,4 +1,6 @@
+import argparse
 import os
+import random
 
 
 class Field(object):
@@ -61,7 +63,7 @@ class Module(object):
         return self.TEMPLATE.format(content=content)
 
 
-def module_builder(num_modules, num_models):
+def module_builder(num_modules, num_models, max_fields):
     modules = []
     mf = 'M{}' # model format
     mc = 0; # model counter
@@ -69,25 +71,31 @@ def module_builder(num_modules, num_models):
     ff = 'f{}' # field format
     fc = 0 # field counter
 
+    fields = (
+        ('CharField', [], dict(max_length=200)),
+        ('TextField', [], {}),
+        ('IntegerField', [], dict(default=1)),
+    )
+
     for i in range(num_modules):
         models = []
         for j in range(num_models//num_modules):
-            fields = [
-                Field(ff.format(fc+1), 'CharField', max_length=200),
-                Field(ff.format(fc+2), 'IntegerField'),
-                Field(ff.format(fc+3), 'TextField'),
-            ]
+            _max_fields = random.randrange(1, max_fields+1)
+            _fields = []
+            for idx in range(fc, fc+_max_fields):
+                _type, args, kwargs = random.choice(fields)
+                _fields.append(Field(ff.format(idx), _type, *args, **kwargs))
 
-            fc += 3
+            fc += idx
             mc += 1
-            models.append(Model(mf.format(mc), fields))
+            models.append(Model(mf.format(mc), _fields))
 
         modules.append(Module('models.py', models))
 
     return modules
 
-def apps_builder(target, num_apps, num_models):
-    modules = module_builder(num_apps, num_models)
+def apps_builder(target, num_apps, num_models, max_fields):
+    modules = module_builder(num_apps, num_models, max_fields)
     pad4 = lambda x: '    {}'.format(x)
 
     if not os.path.exists(target):
@@ -100,7 +108,7 @@ def apps_builder(target, num_apps, num_models):
     for module in modules:
         app_counter += 1
         app_name = app_format.format(app_counter)
-        apps.append(app_name)
+        apps.append("'{}'".format(app_name))
 
         app_path = os.path.join(target, app_name)
         init_file = os.path.join(app_path, '__init__.py')
@@ -114,6 +122,18 @@ def apps_builder(target, num_apps, num_models):
             f.write(module.as_str())
 
     with open(os.path.join(target, 'apps_settings.txt'), 'a') as f:
-        installed_apps = 'INSTALLED_APPS = [\n{}\n]'
+        installed_apps = 'INSTALLED_APPS += [\n{}\n]'
         f.write(installed_apps.format(',\n'.join(map(pad4, apps))))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('target', help='target django directory')
+    parser.add_argument('-a', '--apps', default=1, type=int)
+    parser.add_argument('-m', '--models', default=1, type=int)
+    parser.add_argument('-f', '--max-fields', default=1, type=int)
+
+    args = parser.parse_args()
+
+    apps = apps_builder(args.target, args.apps, args.models, args.max_fields)
 
