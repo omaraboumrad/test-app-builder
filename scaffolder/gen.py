@@ -86,7 +86,7 @@ def module_builder(num_modules, num_models, max_fields):
                 _type, args, kwargs = random.choice(fields)
                 _fields.append(Field(ff.format(idx), _type, *args, **kwargs))
 
-            fc += _max_fields
+            fc += _max_fields-1
             mc += 1
             models.append(Model(mf.format(mc), _fields))
 
