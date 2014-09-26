@@ -1,6 +1,8 @@
 test-app-builder
 ================
 
+[![Build Status](https://travis-ci.org/omaraboumrad/test-app-builder.svg?branch=master)](https://travis-ci.org/omaraboumrad/test-app-builder)
+
 ![Demo GIF](https://dl.dropboxusercontent.com/u/18982788/out.gif)
 
 ## Usage
