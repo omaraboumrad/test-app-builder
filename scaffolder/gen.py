@@ -82,11 +82,11 @@ def module_builder(num_modules, num_models, max_fields):
         for j in range(num_models//num_modules):
             _max_fields = random.randrange(1, max_fields+1)
             _fields = []
-            for idx in range(fc, fc+_max_fields):
+            for idx in range(fc+1, fc+_max_fields):
                 _type, args, kwargs = random.choice(fields)
                 _fields.append(Field(ff.format(idx), _type, *args, **kwargs))
 
-            fc += idx
+            fc += _max_fields
             mc += 1
             models.append(Model(mf.format(mc), _fields))
 
